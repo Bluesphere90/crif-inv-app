@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Nhập Liệu Hóa Đơn Giá Trị Gia Tăng</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Reset & Base --- */
+        * { box-sizing: border-box; margin:0; padding:0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background:#f5f7fa; color:#333; padding:20px; line-height:1.5; }
+
+        .container { max-width:1400px; margin:0 auto; background:#fff; border-radius:12px; box-shadow:0 5px 20px rgba(0,0,0,0.08); overflow:hidden; }
+
+        header { background: linear-gradient(135deg,#2c3e50 0%,#4b6cb7 100%); color:#fff; padding:25px 30px; text-align:center; }
+        header h1 { font-size:28px; margin-bottom:5px; font-weight:600; }
+        header p { opacity:.9; font-size:16px; }
+
+        .content { display:grid; grid-template-columns:1fr; gap:0; }
+
+        .input-section { padding:30px; border-bottom:1px solid #eaeaea; background:#fafbfd; }
+        .section-title { font-size:20px; font-weight:600; color:#2c3e50; margin-bottom:20px; padding-bottom:10px; border-bottom:2px solid #4b6cb7; display:flex; align-items:center; }
+        .section-title i { margin-right:10px; color:#4b6cb7; }
+
+        .form-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(300px,1fr)); gap:25px; margin-bottom:30px; }
+
+        .form-card { background:#fff; border-radius:8px; padding:25px; box-shadow:0 3px 10px rgba(0,0,0,0.05); border:1px solid #eaeaea; }
+        .card-title { font-size:18px; font-weight:600; color:#2c3e50; margin-bottom:20px; display:flex; align-items:center; }
+        .card-title i { margin-right:10px; color:#4b6cb7; }
+
+        .form-group { margin-bottom:16px; }
+        .form-group label { display:block; font-weight:600; margin-bottom:8px; color:#2c3e50; font-size:15px; }
+        .form-group input, .form-group select, .form-group textarea { width:100%; padding:10px 12px; border:1px solid #ddd; border-radius:6px; font-size:15px; }
+        .form-group textarea { resize:vertical; }
+
+        .required::after { content: " *"; color:#e74c3c; }
+
+        /* Products */
+        .product-item { background:#f9fafb; border-radius:6px; padding:16px; margin-bottom:12px; border-left:4px solid #4b6cb7; }
+        .product-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+        .product-title { font-weight:600; color:#2c3e50; }
+
+        .product-grid { display:grid; grid-template-columns: repeat(auto-fit,minmax(200px,1fr)); gap:12px; }
+
+        /* Buttons */
+        .btn { padding:10px 18px; border:none; border-radius:6px; font-weight:600; font-size:14px; cursor:pointer; display:inline-flex; align-items:center; gap:8px; }
+        .btn-primary { background:#4b6cb7; color:#fff; }
+        .btn-success { background:#27ae60; color:#fff; }
+        .btn-secondary { background:#ecf0f1; color:#2c3e50; }
+        .btn-danger { background:#e74c3c; color:#fff; }
+        .btn:hover { transform:translateY(-2px); }
+
+        .form-actions { display:flex; gap:12px; margin-top:20px; padding-top:10px; border-top:1px solid #eaeaea; }
+
+        /* Invoice preview */
+        .invoice-section { padding:30px; }
+        .invoice-preview { background:#fff; border-radius:8px; padding:28px; box-shadow:0 3px 15px rgba(0,0,0,0.08); border:1px solid #eaeaea; max-width:900px; margin:0 auto; }
+        /* Header area with series aligned to the right on same line */
+        .invoice-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+        .invoice-title { text-align:center; flex:1; }
+        .invoice-title h2 { color:#2c3e50; font-size:22px; margin-bottom:2px; text-transform:uppercase; }
+        .invoice-title i { display:block; font-size:14px; font-weight:normal; margin-top:4px; }
+        .invoice-meta { text-align:right; min-width:220px; }
+        .invoice-meta p { margin:0; font-weight:700; font-size:15px; line-height:1.1; }
+        .invoice-meta .series { font-weight:700; font-size:16px; }
+
+        /* Make date display prominent below */
+        .invoice-date { text-align:center; margin-bottom:14px; font-style:italic; color:#333; }
+
+        .invoice-info { display:flex; justify-content:space-between; gap:18px; margin-bottom:18px; flex-wrap:wrap; }
+        /* --- IMPORTANT: reduce seller/buyer font to 13px as requested --- */
+        .seller-info, .buyer-info { min-width:300px; font-size:13px; line-height:1.2; }
+        .info-title { font-weight:600; color:#2c3e50; margin-bottom:8px; font-size:15px; }
+        .info-row { margin-bottom:6px; display:flex; }
+        .info-label { font-weight:600; min-width:110px; }
+
+        .invoice-table-container { overflow-x:auto; margin-bottom:18px; border-radius:8px; border:1px solid #eaeaea; }
+        .invoice-table { width:100%; border-collapse:collapse; font-size:14px; }
+        .invoice-table thead { background:#4b6cb7; color:#fff; }
+        .invoice-table th { padding:10px; text-align:left; font-weight:600; white-space:nowrap; }
+        .invoice-table td { padding:10px; border-bottom:1px solid #eaeaea; }
+		/* Căn giữa cột Đơn vị tính và Số lượng */
+		.invoice-table td:nth-child(3),
+		.invoice-table td:nth-child(4),
+		.invoice-table th:nth-child(3),
+		.invoice-table th:nth-child(4) {
+			text-align: center;
+		}
+
+		/* Căn phải cột Đơn giá và Thành tiền */
+		.invoice-table td:nth-child(5),
+		.invoice-table td:nth-child(6),
+		.invoice-table th:nth-child(5),
+		.invoice-table th:nth-child(6) {
+			text-align: right;
+		}
+
+        .invoice-summary { display:flex; justify-content:flex-end; text-align: right}
+        .summary-table { width:320px; border-collapse:collapse; font-size:15px; }
+        .summary-table td { padding:10px 15px; border-bottom:1px solid #eaeaea; }
+        .summary-table tr:last-child td { border-bottom:none; font-weight:700; font-size:18px; color:#2c3e50; }
+        .total-row { border-top:2px solid #4b6cb7; padding-top:12px; margin-top:8px; }
+
+        .preview-actions { display:flex; gap:12px; margin-top:22px; justify-content:center; }
+
+        /* Print CSS */
+        @media print {
+            body { background:#fff; padding:0; margin:0; }
+            .container { box-shadow:none; border-radius:0; max-width:100%; }
+            .input-section, .form-actions, .preview-actions, .section-title, header { display:none !important; }
+            .invoice-preview { box-shadow:none; border:none; padding:20px; max-width:100%; width:210mm; min-height:297mm; margin:0; page-break-after:always; }
+            .invoice-table th, .invoice-table td { padding:8px; font-size:13px; }
+            .seller-info, .buyer-info { font-size:13px; line-height:1.2; }
+        }
+
+        @media (max-width:768px) {
+            .form-grid { grid-template-columns:1fr; }
+            .invoice-info { flex-direction:column; }
+            .seller-info, .buyer-info { min-width:100%; }
+            .form-actions, .preview-actions { flex-direction:column; }
+            .btn { width:100%; }
+            .invoice-preview { padding:16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-file-invoice-dollar"></i> Nhập Liệu Hóa Đơn Giá Trị Gia Tăng</h1>
+            <p>Nhập thông tin hóa đơn và xem trước ngay lập tức</p>
+        </header>
+
+        <div class="content">
+            <!-- INPUT SECTION -->
+            <section class="input-section">
+                <h2 class="section-title"><i class="fas fa-edit"></i> Nhập Thông Tin Hóa Đơn</h2>
+
+                <div class="form-grid">
+                    <!-- Seller -->
+                    <div class="form-card">
+                        <h3 class="card-title"><i class="fas fa-store"></i> Thông Tin Người Bán</h3>
+                        <div class="form-group">
+                            <label for="sellerName" class="required">Tên người bán</label>
+                            <input type="text" id="sellerName" placeholder="Nhập tên người bán" value="Công Ty TNHH Thương Mại ABC">
+                        </div>
+                        <div class="form-group">
+                            <label for="sellerAddress" class="required">Địa chỉ</label>
+                            <input type="text" id="sellerAddress" placeholder="Nhập địa chỉ" value="123 Đường ABC, Quận 1, TP.HCM">
+                        </div>
+                        <div class="form-group">
+                            <label for="sellerTaxCode" class="required">Mã số thuế</label>
+                            <input type="text" id="sellerTaxCode" placeholder="Nhập mã số thuế" value="1234567890">
+                        </div>
+                        <div class="form-group">
+                            <label for="sellerPhone">Số điện thoại</label>
+                            <input type="text" id="sellerPhone" placeholder="Nhập số điện thoại" value="028 1234 5678">
+                        </div>
+                    </div>
+
+                    <!-- Buyer -->
+                    <div class="form-card">
+                        <h3 class="card-title"><i class="fas fa-user"></i> Thông Tin Người Mua</h3>
+                        <div class="form-group">
+                            <label for="buyerName" class="required">Tên người mua</label>
+                            <input type="text" id="buyerName" placeholder="Nhập tên người mua" value="Công Ty XYZ">
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerAddress" class="required">Địa chỉ</label>
+                            <input type="text" id="buyerAddress" placeholder="Nhập địa chỉ" value="456 Đường XYZ, Quận 3, TP.HCM">
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerTaxCode">Mã số thuế</label>
+                            <input type="text" id="buyerTaxCode" placeholder="Nhập mã số thuế (nếu có)" value="0987654321">
+                        </div>
+                        <div class="form-group">
+                            <label for="buyerPhone">Số điện thoại</label>
+                            <input type="text" id="buyerPhone" placeholder="Nhập số điện thoại" value="0909 123 456">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Invoice & products -->
+                <div class="form-card">
+                    <h3 class="card-title"><i class="fas fa-receipt"></i> Thông Tin Hóa Đơn & Sản Phẩm</h3>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="invoiceNumber" class="required">Số hóa đơn</label>
+                            <input type="text" id="invoiceNumber" placeholder="Nhập số hóa đơn" value="HD-2023-00123">
+                        </div>
+                        <div class="form-group">
+                            <label for="invoiceDate" class="required">Ngày lập hóa đơn</label>
+                            <input type="date" id="invoiceDate" value="2023-10-15">
+                        </div>
+                        <div class="form-group">
+                            <label for="seriesInput">Ký hiệu (Series)</label>
+                            <input type="text" id="seriesInput" placeholder="Ví dụ: 1C25TDB" value="1C25TDB">
+                        </div>
+                        <div class="form-group">
+                            <label for="paymentMethod" class="required">Hình thức thanh toán</label>
+                            <select id="paymentMethod">
+                                <option value="Tiền mặt">Tiền mặt</option>
+                                <option value="Chuyển khoản" selected>Chuyển khoản</option>
+                                <option value="Thẻ tín dụng">Thẻ tín dụng</option>
+                                <option value="Thẻ ghi nợ">Thẻ ghi nợ</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="taxRate" class="required">Thuế suất VAT (%)</label>
+                            <input type="number" id="taxRate" min="0" max="100" value="10">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="companyLogo">Logo công ty (Base64)</label>
+                        <textarea id="companyLogo" rows="4" placeholder="Dán mã Base64 của logo công ty vào đây">data:image/png;base64,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</textarea>
+                        <p style="font-size:12px;color:#666;margin-top:6px;">Dán mã Base64 của logo công ty vào ô trên. Logo sẽ hiển thị trên hóa đơn.</p>
+                    </div>
+
+                    <h4 style="margin:18px 0 10px 0;color:#2c3e50;">Danh sách sản phẩm/dịch vụ</h4>
+                    <div id="productList">
+                        <!-- product items will be added here by JS (two sample products initially) -->
+                        <div class="product-item" data-id="1">
+                            <div class="product-header">
+                                <div class="product-title">Sản phẩm #1</div>
+                                <div>
+                                    <button class="action-btn remove-product-btn" data-id="1" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="product-grid">
+                                <div class="form-group">
+                                    <label>Tên sản phẩm</label>
+                                    <input type="text" class="product-name" value="Máy tính Dell XPS 13">
+                                </div>
+                                <div class="form-group">
+                                    <label>Số lượng</label>
+                                    <input type="number" class="product-quantity" min="1" value="1">
+                                </div>
+                                <div class="form-group">
+                                    <label>Đơn giá (VND)</label>
+                                    <input type="number" class="product-price" min="0" value="25000000">
+                                </div>
+                                <div class="form-group">
+                                    <label>Đơn vị tính</label>
+                                    <input type="text" class="product-unit" value="${unit}">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="product-item" data-id="2">
+                            <div class="product-header">
+                                <div class="product-title">Sản phẩm #2</div>
+                                <div>
+                                    <button class="action-btn remove-product-btn" data-id="2" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button>
+                                </div>
+                            </div>
+                            <div class="product-grid">
+                                <div class="form-group">
+                                    <label>Tên sản phẩm</label>
+                                    <input type="text" class="product-name" value="Chuột không dây Logitech">
+                                </div>
+                                <div class="form-group">
+                                    <label>Số lượng</label>
+                                    <input type="number" class="product-quantity" min="1" value="2">
+                                </div>
+                                <div class="form-group">
+                                    <label>Đơn giá (VND)</label>
+                                    <input type="number" class="product-price" min="0" value="350000">
+                                </div>
+                                <div class="form-group">
+                                    <label>Đơn vị tính</label>
+                                    <input type="text" class="product-unit" value="${unit}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button id="addProductBtn" class="btn btn-secondary"><i class="fas fa-plus"></i> Thêm sản phẩm</button>
+                        <button id="updatePreviewBtn" class="btn btn-primary"><i class="fas fa-eye"></i> Cập nhật Preview</button>
+                        <button id="saveDraftBtn" class="btn btn-secondary"><i class="fas fa-save"></i> Lưu nháp</button>
+                        <button id="resetFormBtn" class="btn btn-secondary"><i class="fas fa-redo"></i> Nhập lại</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PREVIEW SECTION -->
+            <section class="invoice-section">
+                <h2 class="section-title"><i class="fas fa-eye"></i> Preview Hóa Đơn Giá Trị Gia Tăng</h2>
+
+                <div class="invoice-preview" id="invoicePreview">
+                    <!-- Top: Title + Series/No. on same row -->
+                    <div class="invoice-meta">
+                            <p class="series">Ký hiệu (Series): <span id="previewSeries">1C25TDB</span></p>
+                            <p>Số (No.): <span id="previewInvoiceNumber" style="color:red; font-weight:700;">HD-2023-00123</span></p>
+                        </div>
+					<div class="invoice-top">
+                        <div class="invoice-title">
+                            <h2>HÓA ĐƠN GIÁ TRỊ GIA TĂNG <i style="font-size:14px; font-weight:normal;">(VAT INVOICE)</i></h2>
+                        </div>
+                    </div>
+
+                    <!-- Date displayed in Vietnamese full text -->
+                    <div class="invoice-date" id="dateDisplay">
+                        Ngày <span id="previewDay">15</span> tháng <span id="previewMonth">10</span> năm <span id="previewYear">2023</span>
+                        <div style="margin-top:6px;">Hình thức thanh toán: <span id="previewPaymentMethod" style="font-weight:700;">Chuyển khoản</span></div>
+						
+                    </div>
+
+                    <div class="invoice-info">
+                        <div class="seller-info">
+                            <h3 class="info-title">Thông tin người bán</h3>
+                            <div class="info-row"><span class="info-label">Tên:</span><span id="previewSellerName">Công Ty TNHH Thương Mại ABC</span></div>
+                            <div class="info-row"><span class="info-label">Địa chỉ:</span><span id="previewSellerAddress">123 Đường ABC, Quận 1, TP.HCM</span></div>
+                            <div class="info-row"><span class="info-label">Mã số thuế:</span><span id="previewSellerTaxCode">1234567890</span></div>
+                            <div class="info-row"><span class="info-label">Điện thoại:</span><span id="previewSellerPhone">028 1234 5678</span></div>
+                        </div>
+
+                        <div class="buyer-info">
+                            <h3 class="info-title">Thông tin người mua</h3>
+                            <div class="info-row"><span class="info-label">Tên:</span><span id="previewBuyerName">Công Ty XYZ</span></div>
+                            <div class="info-row"><span class="info-label">Địa chỉ:</span><span id="previewBuyerAddress">456 Đường XYZ, Quận 3, TP.HCM</span></div>
+                            <div class="info-row"><span class="info-label">Mã số thuế:</span><span id="previewBuyerTaxCode">0987654321</span></div>
+                            <div class="info-row"><span class="info-label">Điện thoại:</span><span id="previewBuyerPhone">0909 123 456</span></div>
+                        </div>
+                    </div>
+
+                    <div class="invoice-table-container">
+                        <table class="invoice-table">
+                            <thead>
+                                <tr>
+                                    <th>STT</th>
+                                    <th>Tên sản phẩm/dịch vụ</th>
+                                    <th style="text-align:center">Đơn vị tính</th>
+                                    <th style="text-align:center">Số lượng</th>
+                                    <th style="text-align:right">Đơn giá (VND)</th>
+                                    <th style="text-align:right">Thành tiền (VND)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="previewProductList">
+                                <!-- populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="invoice-summary">
+                        <table class="summary-table">
+                            <tr><td>Tổng tiền hàng:</td><td id="previewSubtotal">0 VND</td></tr>
+                            <tr><td>Thuế VAT (<span id="previewTaxRate">10</span>%):</td><td id="previewTaxAmount">0 VND</td></tr>
+                            <tr class="total-row"><td><strong>Tổng thanh toán:</strong></td><td id="previewTotalAmount">0 VND</td></tr>
+                        </table>
+                    </div>
+
+                    <div style="margin-top:26px; text-align:center; font-style:italic; color:#666;">
+                        <div style="display:flex; justify-content:space-between; margin-top:60px;">
+                            <div><p><strong>Người mua hàng</strong></p><p style="margin-top:50px;">Họ tên & chữ ký</p></div>
+                            <div><p><strong>Người bán hàng</strong></p><p style="margin-top:50px;">Họ tên & chữ ký</p></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="preview-actions">
+                    <button id="printInvoiceBtn" class="btn btn-primary"><i class="fas fa-print"></i> In hóa đơn</button>
+                    <button id="exportPDFBtn" class="btn btn-success"><i class="fas fa-file-pdf"></i> Xuất PDF</button>
+                    <button id="clearAllBtn" class="btn btn-danger"><i class="fas fa-trash"></i> Xóa hết</button>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- html2pdf.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js"></script>
+
+    <script>
+        // ---------- Utility & initial state ----------
+        document.addEventListener('DOMContentLoaded', () => {
+            // elements
+            const productList = document.getElementById('productList');
+            const previewProductList = document.getElementById('previewProductList');
+            const addProductBtn = document.getElementById('addProductBtn');
+            const updatePreviewBtn = document.getElementById('updatePreviewBtn');
+            const exportPDFBtn = document.getElementById('exportPDFBtn');
+            const printInvoiceBtn = document.getElementById('printInvoiceBtn');
+            const resetFormBtn = document.getElementById('resetFormBtn');
+            const saveDraftBtn = document.getElementById('saveDraftBtn');
+            const clearAllBtn = document.getElementById('clearAllBtn');
+            const companyLogoInput = document.getElementById('companyLogo');
+
+            let productCounter = 2; // initial two sample products
+
+            // initialize preview immediately
+            updateInvoicePreview();
+
+            // Attach dynamic listeners for inputs to auto-update
+            const inputsToWatch = [
+                'sellerName','sellerAddress','sellerTaxCode','sellerPhone',
+                'buyerName','buyerAddress','buyerTaxCode','buyerPhone',
+                'invoiceNumber','invoiceDate','paymentMethod','taxRate','seriesInput'
+            ];
+            inputsToWatch.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.addEventListener('input', updateInvoicePreview);
+            });
+            companyLogoInput.addEventListener('input', updateInvoicePreview);
+
+            // initial remove-product buttons
+            document.querySelectorAll('.remove-product-btn').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    removeProductItem(id);
+                });
+            });
+
+            addProductBtn.addEventListener('click', () => {
+                addProductItem();
+                updateInvoicePreview();
+            });
+
+            updatePreviewBtn.addEventListener('click', updateInvoicePreview);
+
+            // print function (opens print dialog for preview only)
+            printInvoiceBtn.addEventListener('click', () => {
+                const printContent = document.getElementById('invoicePreview').innerHTML;
+                const printWindow = window.open('', '_blank', 'width=900,height=800');
+                printWindow.document.write(`
+                    <!doctype html><html lang="vi"><head><meta charset="utf-8"><title>In hóa đơn</title>
+                    <style>
+                        body{font-family: 'Times New Roman', Times, serif; padding:20px;color:#000}
+                        .invoice-preview{width:190mm; min-height:277mm; margin:0 auto; padding:15mm; box-sizing:border-box}
+                        .invoice-table th, .invoice-table td { padding:8px; border:1px solid #000; }
+                    </style>
+                    </head><body><div class="invoice-preview">${printContent}</div>
+                    <script>window.onload=function(){window.print(); window.onafterprint=function(){window.close();}};<\/script></body></html>
+                `);
+                printWindow.document.close();
+            });
+
+            // Export PDF for only the invoicePreview element using html2pdf
+            exportPDFBtn.addEventListener('click', () => {
+                const element = document.getElementById('invoicePreview');
+
+                // set options for A4 portrait
+                const opt = {
+                    margin:       [10, 10, 10, 10], // mm
+                    filename:     `${document.getElementById('invoiceNumber').value || 'invoice'}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                };
+
+                // Temporarily expand preview width to A4 ratio for better rendering (non-destructive)
+                html2pdf().set(opt).from(element).save();
+            });
+
+            resetFormBtn.addEventListener('click', () => {
+                if (!confirm('Bạn có chắc chắn muốn nhập lại toàn bộ thông tin?')) return;
+                // Clear fields
+                ['sellerName','sellerAddress','sellerTaxCode','sellerPhone','buyerName','buyerAddress','buyerTaxCode','buyerPhone','invoiceNumber','invoiceDate','taxRate','seriesInput'].forEach(id=>{
+                    const el = document.getElementById(id); if(el) el.value = '';
+                });
+                companyLogoInput.value = '';
+                // reset products to one sample
+                productList.innerHTML = '';
+                productCounter = 0;
+                addProductItem('Sản phẩm mẫu',1,100000,'Cái');
+                updateInvoicePreview();
+            });
+
+            saveDraftBtn.addEventListener('click', () => {
+                saveInvoiceToLocalStorage();
+                showNotification('Đã lưu nháp!', 'success');
+            });
+
+            clearAllBtn.addEventListener('click', () => {
+                if (!confirm('Bạn có chắc chắn muốn xóa toàn bộ dữ liệu?')) return;
+                resetFormBtn.click();
+                localStorage.removeItem('invoiceDraft');
+                showNotification('Đã xóa toàn bộ dữ liệu!', 'success');
+            });
+
+            // Load draft if available
+            loadInvoiceFromLocalStorage();
+
+            // ----------- Functions -------------
+            function addProductItem(name = '', quantity = 1, price = 0, unit = 'Cái') {
+                productCounter++;
+                const id = productCounter;
+                const div = document.createElement('div');
+                div.className = 'product-item';
+                div.setAttribute('data-id', id);
+                div.innerHTML = `
+                    <div class="product-header">
+                        <div class="product-title">Sản phẩm #${id}</div>
+                        <div><button class="action-btn remove-product-btn" data-id="${id}" title="Xóa sản phẩm"><i class="fas fa-trash"></i></button></div>
+                    </div>
+                    <div class="product-grid">
+                        <div class="form-group"><label>Tên sản phẩm</label><input type="text" class="product-name" value="${name}"></div>
+                        <div class="form-group"><label>Số lượng</label><input type="number" class="product-quantity" min="1" value="${quantity}"></div>
+                        <div class="form-group"><label>Đơn giá (VND)</label><input type="number" class="product-price" min="0" value="${price}"></div>
+                        <div class="form-group"><label>Đơn vị tính</label><input type="text" class="product-unit" value="${unit}"></div>
+                    </div>
+                `;
+                productList.appendChild(div);
+
+                // attach listeners
+                div.querySelector('.remove-product-btn').addEventListener('click', (e) => {
+                    const id = e.currentTarget.getAttribute('data-id');
+                    removeProductItem(id);
+                });
+                // update preview when product inputs change
+                ['.product-name','.product-quantity','.product-price','.product-unit'].forEach(sel=>{
+                    div.querySelectorAll(sel)[0].addEventListener('input', updateInvoicePreview);
+                });
+            }
+
+            function removeProductItem(id) {
+                const el = document.querySelector(`.product-item[data-id="${id}"]`);
+                if (!el) return;
+                if (!confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')) return;
+                el.remove();
+                updateInvoicePreview();
+            }
+
+            function getProductsData() {
+                const products = [];
+                productList.querySelectorAll('.product-item').forEach(item => {
+                    products.push({
+                        name: item.querySelector('.product-name').value || '',
+                        quantity: parseInt(item.querySelector('.product-quantity').value) || 0,
+                        price: parseInt(item.querySelector('.product-price').value) || 0,
+                        unit: item.querySelector('.product-unit').value || ''
+                    });
+                });
+                return products;
+            }
+
+            function formatNumber(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+            function formatCurrency(amount) {
+                return new Intl.NumberFormat('vi-VN').format(amount);
+            }
+
+            // New: format date into "Ngày D tháng M năm YYYY"
+            function formatDateToVietnamese(dateString) {
+                let d;
+                if (!dateString) d = new Date();
+                else d = new Date(dateString);
+                const day = d.getDate();
+                const month = d.getMonth() + 1;
+                const year = d.getFullYear();
+                return { day, month, year, text: `Ngày ${day} tháng ${month} năm ${year}` };
+            }
+
+            function updateInvoicePreview() {
+                // Seller/Buyer
+                document.getElementById('previewSellerName').textContent = document.getElementById('sellerName').value || 'Chưa nhập';
+                document.getElementById('previewSellerAddress').textContent = document.getElementById('sellerAddress').value || 'Chưa nhập';
+                document.getElementById('previewSellerTaxCode').textContent = document.getElementById('sellerTaxCode').value || 'Chưa nhập';
+                document.getElementById('previewSellerPhone').textContent = document.getElementById('sellerPhone').value || '';
+
+                document.getElementById('previewBuyerName').textContent = document.getElementById('buyerName').value || 'Chưa nhập';
+                document.getElementById('previewBuyerAddress').textContent = document.getElementById('buyerAddress').value || 'Chưa nhập';
+                document.getElementById('previewBuyerTaxCode').textContent = document.getElementById('buyerTaxCode').value || 'Chưa nhập';
+                document.getElementById('previewBuyerPhone').textContent = document.getElementById('buyerPhone').value || '';
+
+                // Invoice meta
+                const invoiceNumber = document.getElementById('invoiceNumber').value || 'Chưa nhập';
+                document.getElementById('previewInvoiceNumber').textContent = invoiceNumber;
+
+                const seriesVal = document.getElementById('seriesInput').value || '';
+                document.getElementById('previewSeries').textContent = seriesVal;
+
+                const paymentMethod = document.getElementById('paymentMethod').value || '';
+                document.getElementById('previewPaymentMethod').textContent = paymentMethod;
+
+                const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
+                document.getElementById('previewTaxRate').textContent = taxRate;
+
+                // Date -> set day/month/year spans
+                const invoiceDateVal = document.getElementById('invoiceDate').value;
+                const dateParts = formatDateToVietnamese(invoiceDateVal);
+                document.getElementById('previewDay').textContent = dateParts.day;
+                document.getElementById('previewMonth').textContent = dateParts.month;
+                document.getElementById('previewYear').textContent = dateParts.year;
+
+                // Logo
+                const logoData = companyLogoInput.value.trim();
+                const previewLogo = document.getElementById('previewLogo');
+                if (previewLogo) previewLogo.remove(); // remove if exists (we'll reinsert)
+                // insert logo into top-left of preview (if provided)
+                const existingLogo = document.querySelector('.company-logo-preview');
+                if (existingLogo) existingLogo.remove();
+                if (logoData) {
+                    const img = document.createElement('img');
+                    img.id = 'previewLogo';
+                    img.src = logoData;
+                    img.alt = 'Logo';
+                    img.style.maxHeight = '70px';
+                    img.style.maxWidth = '180px';
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'company-logo-preview';
+                    wrapper.style.textAlign = 'center';
+                    wrapper.appendChild(img);
+                    const invoicePreview = document.getElementById('invoicePreview');
+                    // insert at very top before invoice-top
+                    invoicePreview.insertBefore(wrapper, invoicePreview.firstChild);
+                }
+
+                // Products: rebuild previewProductList
+                const products = getProductsData();
+                previewProductList.innerHTML = '';
+                let subtotal = 0;
+                products.forEach((p, idx) => {
+                    const total = (p.quantity || 0) * (p.price || 0);
+                    subtotal += total;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${idx + 1}</td>
+                        <td>${p.name || ''}</td>
+                        <td>${p.unit || ''}</td>
+                        <td>${p.quantity || 0}</td>
+                        <td>${formatNumber(p.price || 0)}</td>
+                        <td>${formatNumber(total)}</td>
+                    `;
+                    previewProductList.appendChild(tr);
+                });
+
+                const taxAmount = Math.round(subtotal * taxRate / 100);
+                const totalAmount = subtotal + taxAmount;
+
+                document.getElementById('previewSubtotal').textContent = formatCurrency(subtotal);
+                document.getElementById('previewTaxAmount').textContent = formatCurrency(taxAmount);
+                document.getElementById('previewTotalAmount').textContent = formatCurrency(totalAmount);
+
+                showNotification('Preview đã được cập nhật!', 'success');
+            }
+
+            // Save/load to localStorage
+            function saveInvoiceToLocalStorage() {
+                const data = {
+                    seller: {
+                        name: document.getElementById('sellerName').value,
+                        address: document.getElementById('sellerAddress').value,
+                        taxCode: document.getElementById('sellerTaxCode').value,
+                        phone: document.getElementById('sellerPhone').value
+                    },
+                    buyer: {
+                        name: document.getElementById('buyerName').value,
+                        address: document.getElementById('buyerAddress').value,
+                        taxCode: document.getElementById('buyerTaxCode').value,
+                        phone: document.getElementById('buyerPhone').value
+                    },
+                    invoice: {
+                        number: document.getElementById('invoiceNumber').value,
+                        date: document.getElementById('invoiceDate').value,
+                        paymentMethod: document.getElementById('paymentMethod').value,
+                        taxRate: document.getElementById('taxRate').value,
+                        series: document.getElementById('seriesInput').value
+                    },
+                    logo: companyLogoInput.value,
+                    products: getProductsData(),
+                    savedAt: new Date().toISOString()
+                };
+                localStorage.setItem('invoiceDraft', JSON.stringify(data));
+            }
+
+            function loadInvoiceFromLocalStorage() {
+                const raw = localStorage.getItem('invoiceDraft');
+                if (!raw) return;
+                try {
+                    const d = JSON.parse(raw);
+                    if (d.seller) {
+                        document.getElementById('sellerName').value = d.seller.name || '';
+                        document.getElementById('sellerAddress').value = d.seller.address || '';
+                        document.getElementById('sellerTaxCode').value = d.seller.taxCode || '';
+                        document.getElementById('sellerPhone').value = d.seller.phone || '';
+                    }
+                    if (d.buyer) {
+                        document.getElementById('buyerName').value = d.buyer.name || '';
+                        document.getElementById('buyerAddress').value = d.buyer.address || '';
+                        document.getElementById('buyerTaxCode').value = d.buyer.taxCode || '';
+                        document.getElementById('buyerPhone').value = d.buyer.phone || '';
+                    }
+                    if (d.invoice) {
+                        document.getElementById('invoiceNumber').value = d.invoice.number || '';
+                        document.getElementById('invoiceDate').value = d.invoice.date || '';
+                        document.getElementById('paymentMethod').value = d.invoice.paymentMethod || 'Tiền mặt';
+                        document.getElementById('taxRate').value = d.invoice.taxRate || '10';
+                        document.getElementById('seriesInput').value = d.invoice.series || '';
+                    }
+                    if (d.logo) companyLogoInput.value = d.logo;
+                    if (d.products && d.products.length) {
+                        productList.innerHTML = '';
+                        productCounter = 0;
+                        d.products.forEach(p => addProductItem(p.name, p.quantity, p.price, p.unit));
+                    }
+                    updateInvoicePreview();
+                    showNotification('Đã tải hóa đơn từ bản nháp!', 'success');
+                } catch (e) {
+                    console.error('Lỗi khi tải nháp:', e);
+                }
+            }
+
+            // Notification small helper
+            function showNotification(msg, type='info') {
+                const n = document.createElement('div');
+                n.style.cssText = 'position:fixed; top:20px; right:20px; padding:12px 16px; border-radius:6px; color:#fff; font-weight:600; z-index:9999; box-shadow:0 3px 10px rgba(0,0,0,0.2);';
+                if (type==='success') n.style.background='#27ae60';
+                else if (type==='error') n.style.background='#e74c3c';
+                else n.style.background='#3498db';
+                n.textContent = msg;
+                document.body.appendChild(n);
+                setTimeout(()=>{ n.style.opacity = '0'; setTimeout(()=>n.remove(),300); }, 2600);
+            }
+
+            // If no products exist (fresh), ensure at least the initial sample products
+            if (!productList.querySelectorAll('.product-item').length) {
+                addProductItem('Sản phẩm mẫu',1,100000,'Cái');
+            }
+            // initial attach product inputs change to update preview
+            productList.querySelectorAll('.product-item').forEach(pi=>{
+                pi.querySelectorAll('input,select').forEach(inp=>{
+                    inp.addEventListener('input', updateInvoicePreview);
+                });
+            });
+
+            function attachRemoveButtons() {
+                document.querySelectorAll('.remove-product-btn').forEach(btn=>{
+                    btn.removeEventListener && btn.removeEventListener('click', ()=>{});
+                    btn.addEventListener('click', (e)=>{
+                        removeProductItem(e.currentTarget.getAttribute('data-id'));
+                    });
+                });
+            }
+            attachRemoveButtons();
+
+            // initial preview
+            updateInvoicePreview();
+
+        }); // DOMContentLoaded
+    </script>
+</body>
+</html>
