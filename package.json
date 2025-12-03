@@ -5,6 +5,11 @@
   "engines": {
     "node": "24.x"
   },
+  "scripts": {
+    "dev": "vercel dev",
+    "start": "vercel dev",
+    "postinstall": "npx playwright install --with-deps"
+  },
   "dependencies": {
     "playwright": "^1.49.1"
   }
