@@ -1,12 +1,11 @@
 {
-    "name": "invoice-pdf-generator",
-    "version": "1.1.0",
-    "type": "module",
-    "engines": {
-      "node": "24.x"
-    },
-    "dependencies": {
-      "@playwright/browser-chromium": "1.49.1"
-    }
+  "name": "invoice-pdf-generator",
+  "version": "1.1.0",
+  "type": "module",
+  "engines": {
+    "node": "24.x"
+  },
+  "dependencies": {
+    "playwright": "^1.49.1"
   }
-  
+}
