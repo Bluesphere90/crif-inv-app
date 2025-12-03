@@ -1,0 +1,15 @@
+{
+    "version": 2,
+    "builds": [
+      { "src": "api/generate-pdf.js", "use": "@vercel/node" },
+      { "src": "index.html", "use": "@vercel/static" }
+    ],
+    "routes": [
+      { "src": "/api/generate-pdf", "dest": "/api/generate-pdf.js" },
+      { "src": "/", "dest": "/index.html" }
+    ],
+    "env": {
+      "NODE_ENV": "production"
+    }
+  }
+  

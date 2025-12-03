@@ -1,0 +1,17 @@
+{
+    "name": "invoice-pdf-generator",
+    "version": "1.0.0",
+    "description": "Vercel serverless API to render invoice HTML -> PDF using headless Chromium (puppeteer-core + chrome-aws-lambda).",
+    "main": "api/generate-pdf.js",
+    "scripts": {
+      "start": "vercel dev"
+    },
+    "dependencies": {
+      "chrome-aws-lambda": "^20.0.0",
+      "puppeteer-core": "^20.8.0"
+    },
+    "engines": {
+      "node": "18.x"
+    }
+  }
+  
