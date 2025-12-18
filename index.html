@@ -56,7 +56,7 @@
         .invoice-section { padding:30px; }
         .invoice-preview { background:#fff; border-radius:8px; padding:28px; box-shadow:0 3px 15px rgba(0,0,0,0.08); border:1px solid #eaeaea; max-width:900px; margin:0 auto; }
         /* Header area with series aligned to the right on same line */
-        .invoice-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+        .invoice-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:0px; flex-wrap:wrap; }
         .invoice-title { text-align:center; flex:1; }
         .invoice-title h2 { color:#2c3e50; font-size:22px; margin-bottom:2px; text-transform:uppercase; }
         .invoice-title i { display:block; font-size:14px; font-weight:normal; margin-top:4px; }
@@ -65,7 +65,7 @@
         .invoice-meta .series { font-weight:700; font-size:16px; }
 
         /* Make date display prominent below */
-        .invoice-date { text-align:center; margin-bottom:14px; font-style:italic; color:#333; }
+        .invoice-date { text-align:center; margin-top: 0; margin-bottom:6px; font-style:italic; color:#333; }
 
         .invoice-info { display:flex; justify-content:space-between; gap:18px; margin-bottom:18px; flex-wrap:wrap; }
         /* --- IMPORTANT: reduce seller/buyer font to 13px as requested --- */
@@ -207,6 +207,16 @@
                             <label for="taxRate" class="required">Thuế suất VAT (%)</label>
                             <input type="number" id="taxRate" min="0" max="100" value="10">
                         </div>
+                        <div class="form-group">
+                              <label for="currency">Loại tiền tệ</label>
+                              <input
+                                type="text"
+                                id="currency"
+                                placeholder="Ví dụ: VND, USD, EUR"
+                                value="VND"
+                              >
+                        </div>
+
                     </div>
 
                     <div class="form-group" style="display:none;">
@@ -301,8 +311,6 @@
                     <!-- Date displayed in Vietnamese full text -->
                     <div class="invoice-date" id="dateDisplay">
                         Ngày <span id="previewDay">15</span> tháng <span id="previewMonth">10</span> năm <span id="previewYear">2023</span>
-                        
-						
                     </div>
 
                     <div class="invoice-info">
@@ -323,7 +331,14 @@
                         </div>
                     </div>
 
-					<div style="margin-top:6px;">Hình thức thanh toán: <span id="previewPaymentMethod" style="font-weight:700;">Chuyển khoản</span></div>
+					<div style="margin-top:6px;">
+                      Hình thức thanh toán:
+                      <span id="previewPaymentMethod" style="font-weight:700;">Chuyển khoản</span>
+                    </div>
+                    <div style="margin-top:4px;">
+                      Tiền tệ:
+                      <span id="previewCurrency" style="font-weight:700;">VND</span>
+                    </div>
 
                     <div class="invoice-table-container">
                         <table class="invoice-table">
@@ -395,7 +410,7 @@
             const inputsToWatch = [
                 'sellerName','sellerAddress','sellerTaxCode','sellerPhone',
                 'buyerName','buyerAddress','buyerTaxCode','buyerPhone',
-                'invoiceNumber','invoiceDate','paymentMethod','taxRate','seriesInput'
+                'invoiceNumber','invoiceDate','paymentMethod','taxRate','seriesInput', 'currency'
             ];
             inputsToWatch.forEach(id => {
                 const el = document.getElementById(id);
@@ -577,6 +592,10 @@
                 const taxRate = parseFloat(document.getElementById('taxRate').value) || 0;
                 document.getElementById('previewTaxRate').textContent = taxRate;
 
+                const currencyVal =
+                document.getElementById('currency')?.value?.trim() || 'VND';
+                document.getElementById('previewCurrency').textContent = currencyVal;
+
                 // Date -> set day/month/year spans
                 const invoiceDateVal = document.getElementById('invoiceDate').value;
                 const dateParts = formatDateToVietnamese(invoiceDateVal);
@@ -656,7 +675,8 @@
                         date: document.getElementById('invoiceDate').value,
                         paymentMethod: document.getElementById('paymentMethod').value,
                         taxRate: document.getElementById('taxRate').value,
-                        series: document.getElementById('seriesInput').value
+                        series: document.getElementById('seriesInput').value,
+                        currency: document.getElementById('currency').value
                     },
                     logo: companyLogoInput.value,
                     products: getProductsData(),
@@ -688,6 +708,7 @@
                         document.getElementById('paymentMethod').value = d.invoice.paymentMethod || 'Tiền mặt';
                         document.getElementById('taxRate').value = d.invoice.taxRate || '10';
                         document.getElementById('seriesInput').value = d.invoice.series || '';
+                        document.getElementById('currency').value = d.invoice.currency || 'VND';
                     }
                     if (d.logo) companyLogoInput.value = d.logo;
                     if (d.products && d.products.length) {
