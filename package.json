@@ -3,12 +3,11 @@
   "version": "1.1.0",
   "type": "module",
   "engines": {
-    "node": "24.x"
+    "node": "18.x"
   },
   "scripts": {
     "dev": "vercel dev",
-    "start": "vercel dev",
-    "postinstall": "npx playwright install --with-deps"
+    "start": "vercel dev"
   },
   "dependencies": {
     "playwright": "^1.49.1"
